@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/price_history.db
-          key: price-history-db-backup
+          key: price-history-db-backup-${{ github.run_id }}
           restore-keys: |
             price-history-db-
           
