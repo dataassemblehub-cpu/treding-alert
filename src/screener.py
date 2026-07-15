@@ -1,3 +1,5 @@
+import pandas as pd
+
 def screen_symbol(symbol, current_price, history_df, settings):
     """
     history_df: DataFrame with columns [date, close, volume], sorted ascending by date.
@@ -13,15 +15,15 @@ def screen_symbol(symbol, current_price, history_df, settings):
     # Determine 52-week equivalent (252 trading days)
     trailing_year = history_df.tail(252)
     
-    low_52w = trailing_year["close"].min()
-    all_time_low = history_df["close"].min()
+    low_52w = float(trailing_year["close"].min())
+    all_time_low = float(history_df["close"].min())
     
     # Label correctly if less than 252 days
     is_full_52w = len(trailing_year) == 252
     low_label_52w = "52W low" if is_full_52w else f"{len(trailing_year)}-day low"
 
-    near_52w = current_price <= low_52w * (1 + threshold)
-    near_atl = current_price <= all_time_low * (1 + threshold)
+    near_52w = bool(current_price <= low_52w * (1 + threshold))
+    near_atl = bool(current_price <= all_time_low * (1 + threshold))
 
     if not (near_52w or near_atl):
         return None
@@ -32,8 +34,14 @@ def screen_symbol(symbol, current_price, history_df, settings):
     if vol_history.empty:
         return None
         
-    avg_vol_20d = vol_history.mean()
-    today_vol = history_df["volume"].iloc[-1]
+    # Date-match guard: ensure the last row in history_df is reasonably recent (e.g. within 7 days)
+    last_date = pd.to_datetime(history_df["date"].iloc[-1]).date()
+    today = pd.Timestamp.today().date()
+    if (today - last_date).days > 7:
+        raise ValueError(f"history_df is stale. Last date is {last_date}, which is more than 7 days ago.")
+
+    avg_vol_20d = float(vol_history.mean())
+    today_vol = float(history_df["volume"].iloc[-1])
     
     if today_vol < avg_vol_20d * min_vol_ratio:
         return None  # likely illiquid/noise, don't alert

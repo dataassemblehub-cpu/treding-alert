@@ -31,3 +31,4 @@ wheels/
 # However, we can ignore journal files
 *.sqlite3-journal
 *.db-journal
+.venv/

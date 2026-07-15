@@ -18,7 +18,7 @@ def main():
     load_dotenv()
     
     # 2. Set up paths
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     config_dir = os.path.join(base_dir, 'config')
     data_dir = os.path.join(base_dir, 'data')
     os.makedirs(data_dir, exist_ok=True)
