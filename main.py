@@ -69,16 +69,13 @@ def main():
         if alerts_for_cat:
             categorized_alerts[category] = alerts_for_cat
             
-    # 5. Send alerts
-    if categorized_alerts:
-        logging.info("Attempting to send Telegram alerts...")
-        success = send_telegram_and_log(categorized_alerts, alert_db_path)
-        if success:
-            logging.info("Run completed successfully with alerts sent.")
-        else:
-            logging.error("Run completed, but alert sending failed.")
+    # 5. Send alerts (including empty notifications)
+    logging.info("Attempting to send Telegram alerts...")
+    success = send_telegram_and_log(categorized_alerts, alert_db_path)
+    if success:
+        logging.info("Run completed successfully with alerts sent.")
     else:
-        logging.info("Run completed. No matches found.")
+        logging.error("Run completed, but alert sending failed.")
 
 if __name__ == "__main__":
     main()
