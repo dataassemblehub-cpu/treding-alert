@@ -1,0 +1,29 @@
+name: Backup Price History DB
+
+on:
+  schedule:
+    # Run once a week on Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Restore price history cache
+        uses: actions/cache@v4
+        with:
+          path: data/price_history.db
+          key: price-history-db-backup
+          restore-keys: |
+            price-history-db-
+          
+      - name: Commit DB backup
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "[skip ci] Weekly backup of price_history.db"
+          file_pattern: 'data/price_history.db'

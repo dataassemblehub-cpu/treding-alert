@@ -1,0 +1,33 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# Databases
+# We do NOT ignore data/alert_log.db because we commit it back to the repo.
+# price_history.db is committed back weekly, so we also do not ignore it.
+# However, we can ignore journal files
+*.sqlite3-journal
+*.db-journal

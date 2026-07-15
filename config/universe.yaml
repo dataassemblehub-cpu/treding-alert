@@ -1,0 +1,24 @@
+# Universe of stocks to screen
+# Grouped by category. You can add new categories or stocks here.
+# NOTE: NSE stocks must end with .NS, BSE with .BO
+
+IT:
+  - TCS.NS
+  - INFY.NS
+  - WIPRO.NS
+  - HCLTECH.NS
+  - TECHM.NS
+
+# Finance:
+#   - HDFCBANK.NS
+#   - ICICIBANK.NS
+#   - KOTAKBANK.NS
+#   - AXISBANK.NS
+#   - SBIN.NS
+
+# Gold:
+#   - GOLDBEES.NS
+
+# Sports:
+#   - JUBLFOOD.NS
+#   - THOMASCOOK.NS
