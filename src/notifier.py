@@ -81,7 +81,7 @@ def format_telegram_message(categorized_alerts):
         lines.append("")
         
     if not has_alerts:
-        return None
+        return f"📉 Trading Alert — {now_str}\n\nNo matches found in this run."
         
     return "\n".join(lines).strip()
 
@@ -103,6 +103,7 @@ def send_telegram_and_log(categorized_alerts, db_path):
             
     msg = format_telegram_message(filtered_categorized)
     if not msg:
+        # Should not happen now that format_telegram_message always returns a string, but kept for safety
         logging.info("No new alerts to send after filtering.")
         return True 
         

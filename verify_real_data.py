@@ -4,7 +4,7 @@ into data/price_history.db. No network calls — pure regression check.
 """
 import sqlite3
 import pandas as pd
-from ../src.screener import screen_symbol
+from src.screener import screen_symbol
 
 conn = sqlite3.connect("data/price_history.db")
 
