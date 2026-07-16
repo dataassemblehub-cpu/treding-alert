@@ -44,8 +44,8 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
         
-      - name: Commit alert log back to repo
+      - name: Commit Database Updates
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "[skip ci] Update alert_log.db"
-          file_pattern: 'data/alert_log.db'
+          commit_message: "[skip ci] Update market data and alert log"
+          file_pattern: 'data/market_data.db'

@@ -1,81 +1,63 @@
-import os
-import yaml
 import logging
-from dotenv import load_dotenv
+import os
+from src.repositories.market_repo import MarketRepository
+from src.services.market_service import MarketService
+from src.services.notification_service import NotificationService
+from src.strategies.engine import StrategyEngine
+from src.strategies.near_52w_low import Near52WeekLowStrategy
 
-from src.fetcher import fetch_and_store_history, get_latest_price_data
-from src.screener import screen_symbol
-from src.notifier import send_telegram_and_log
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-def load_config(filepath):
-    with open(filepath, 'r') as f:
-        return yaml.safe_load(f)
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
 def main():
-    # 1. Load environment variables
-    load_dotenv()
+    setup_logging()
+    logging.info("Starting Phase 2 Trading Alert Screener...")
+
+    # Initialize dependencies
+    repo = MarketRepository()
+    market_service = MarketService(repo)
+    notification_service = NotificationService(repo)
     
-    # 2. Set up paths
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    config_dir = os.path.join(base_dir, 'config')
-    data_dir = os.path.join(base_dir, 'data')
-    os.makedirs(data_dir, exist_ok=True)
+    # Initialize Strategy Engine
+    engine = StrategyEngine()
+    engine.register(Near52WeekLowStrategy())
     
-    settings_path = os.path.join(config_dir, 'settings.yaml')
-    universe_path = os.path.join(config_dir, 'universe.yaml')
-    price_db_path = os.path.join(data_dir, 'price_history.db')
-    alert_db_path = os.path.join(data_dir, 'alert_log.db')
-    
-    # 3. Load configurations
-    settings = load_config(settings_path)
-    universe = load_config(universe_path)
-    
-    categorized_alerts = {}
-    
-    # 4. Iterate over universe
-    for category, symbols in universe.items():
-        if not symbols:
-            continue
+    symbols = repo.get_all_symbols()
+    if not symbols:
+        logging.error("No symbols found in the universe. Run generators first.")
+        return
+
+    all_alerts = []
+
+    for symbol in symbols:
+        logging.info(f"Processing {symbol}...")
+        try:
+            # 1. Fetch domain object populated with DB data & latest prices
+            stock = market_service.prepare_stock(symbol)
             
-        alerts_for_cat = []
-        for symbol in symbols:
-            try:
-                logging.info(f"Processing {symbol}...")
-                
-                # Fetch latest price
-                current_price, current_volume = get_latest_price_data(symbol)
-                if current_price is None:
-                    continue
-                    
-                # Fetch/update history
-                history_df = fetch_and_store_history(symbol, price_db_path)
-                if history_df.empty:
-                    logging.warning(f"No history available for {symbol}")
-                    continue
-                    
-                # Screen
-                alert_data = screen_symbol(symbol, current_price, history_df, settings)
-                if alert_data:
-                    alerts_for_cat.append(alert_data)
-                    logging.info(f"🚨 MATCH: {symbol}")
-                else:
-                    logging.info(f"No match for {symbol}")
-                    
-            except Exception as e:
-                logging.error(f"Error processing {symbol}: {e}")
-                
-        if alerts_for_cat:
-            categorized_alerts[category] = alerts_for_cat
+            # 2. Run through registered strategies
+            alerts = engine.execute(stock)
             
-    # 5. Send alerts (including empty notifications)
+            if alerts:
+                all_alerts.extend(alerts)
+            else:
+                logging.info(f"No match for {symbol}")
+                
+        except Exception as e:
+            logging.error(f"Error processing {symbol}: {e}")
+
+    # 3. Handle Notifications
     logging.info("Attempting to send Telegram alerts...")
-    success = send_telegram_and_log(categorized_alerts, alert_db_path)
+    success = notification_service.send_alerts(all_alerts)
     if success:
-        logging.info("Run completed successfully with alerts sent.")
+        logging.info("Run completed successfully with alerts sent (or skipped if empty/duplicate).")
     else:
         logging.error("Run completed, but alert sending failed.")
 
 if __name__ == "__main__":
+    # Ensure working directory is the project root
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     main()

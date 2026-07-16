@@ -1,0 +1,49 @@
+name: Update Market Metadata
+
+on:
+  schedule:
+    # Run once a week on Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  update-metadata:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        
+      # We restore the DB to build upon existing history, but we don't rely solely on cache
+      - name: Restore DB cache
+        uses: actions/cache@v4
+        with:
+          path: data/market_data.db
+          key: market-data-db-${{ github.run_id }}
+          restore-keys: |
+            market-data-db-
+            
+      - name: Generate Universe
+        env:
+          PYTHONPATH: .
+        run: python -m src.generators.universe
+        
+      - name: Generate Volatility
+        env:
+          PYTHONPATH: .
+        run: python -m src.generators.volatility
+        
+      - name: Commit DB
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "[skip ci] Weekly update of market metadata and universe"
+          file_pattern: 'data/market_data.db'
