@@ -1,11 +1,9 @@
-# Settings for Trading Alert System
+# Global configuration settings
 
-# The threshold percentage to define "near" a low. 
-# 0.02 means 2% above the low.
-threshold_pct: 0.02
+# Determines the size of the threshold based on the stock's 14-day ATR.
+atr_multiplier: 1.0
 
-# Minimum volume ratio compared to the 20-day average.
-# 0.5 means today's volume must be at least 50% of the 20-day average.
+# Minimum volume required relative to 20-day average
 min_volume_ratio: 0.5
 
 # Note on run frequency:
