@@ -9,6 +9,8 @@ on:
 jobs:
   update-metadata:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout repository
@@ -35,12 +37,12 @@ jobs:
       - name: Generate Universe
         env:
           PYTHONPATH: .
-        run: python -m src.generators.universe
+        run: python src/generators/universe.py
         
       - name: Generate Volatility
         env:
           PYTHONPATH: .
-        run: python -m src.generators.volatility
+        run: python src/generators/volatility.py
         
       - name: Commit DB
         uses: stefanzweifel/git-auto-commit-action@v5
