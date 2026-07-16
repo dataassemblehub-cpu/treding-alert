@@ -20,13 +20,16 @@ class NotificationService:
             self.settings = {}
 
     def format_alert(self, alert: Alert) -> str:
+        # Create a more readable, human-friendly format
         lines = [
-            f"🟢 <b>{alert.symbol}</b> ({alert.strategy_name})",
-            f"Sector: {alert.sector} | Ind: {alert.industry}",
-            f"Current: ₹{alert.current_price:.2f}",
-            f"Ref Price: ₹{alert.reference_price:.2f} ({alert.distance_pct:+.2f}%)",
-            f"Threshold: {alert.threshold_used * 100:.2f}%",
-            f"Trend: {alert.trend}"
+            f"<b>{alert.symbol}</b> 🚨",
+            f"<i>{alert.strategy_name}</i>",
+            f"🏢 {alert.sector} | {alert.industry}",
+            f"───────────────",
+            f"💰 <b>Current Price:</b> ₹{alert.current_price:,.2f}",
+            f"🎯 <b>Target/Low:</b> ₹{alert.reference_price:,.2f}",
+            f"📏 <b>Distance:</b> {alert.distance_pct:+.2f}% <i>(Max Allowed: {alert.threshold_used * 100:.1f}%)</i>",
+            f"📈 <b>Trend:</b> {alert.trend}"
         ]
         return "\n".join(lines)
 
@@ -62,7 +65,6 @@ class NotificationService:
         
         bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
         chat_id = os.environ.get("TELEGRAM_CHAT_ID")
-        print("Telegram Credentials:", bot_token, chat_id)
         
         if not bot_token or not chat_id:
             logging.warning("Telegram credentials not found in env vars. Printing to console instead:")

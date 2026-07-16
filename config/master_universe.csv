@@ -1,6 +1,120 @@
 symbol,company,sector,industry
 TCS.NS,Tata Consultancy Services,Technology,Information Technology
 INFY.NS,Infosys,Technology,Information Technology
-WIPRO.NS,Wipro,Technology,Information Technology
 HCLTECH.NS,HCL Technologies,Technology,Information Technology
+WIPRO.NS,Wipro,Technology,Information Technology
 TECHM.NS,Tech Mahindra,Technology,Information Technology
+
+HDFCBANK.NS,HDFC Bank,Financial Services,Private Banking
+ICICIBANK.NS,ICICI Bank,Financial Services,Private Banking
+KOTAKBANK.NS,Kotak Mahindra Bank,Financial Services,Private Banking
+AXISBANK.NS,Axis Bank,Financial Services,Private Banking
+INDUSINDBK.NS,IndusInd Bank,Financial Services,Private Banking
+
+SBIN.NS,State Bank of India,Financial Services,Public Banking
+BANKBARODA.NS,Bank of Baroda,Financial Services,Public Banking
+PNB.NS,Punjab National Bank,Financial Services,Public Banking
+CANBK.NS,Canara Bank,Financial Services,Public Banking
+UNIONBANK.NS,Union Bank of India,Financial Services,Public Banking
+
+BAJFINANCE.NS,Bajaj Finance,Financial Services,NBFC
+BAJAJFINSV.NS,Bajaj Finserv,Financial Services,Financial Services
+CHOLAFIN.NS,Cholamandalam Investment,Financial Services,NBFC
+SHRIRAMFIN.NS,Shriram Finance,Financial Services,NBFC
+MUTHOOTFIN.NS,Muthoot Finance,Financial Services,NBFC
+
+RELIANCE.NS,Reliance Industries,Energy,Oil & Gas
+ONGC.NS,Oil and Natural Gas Corporation,Energy,Oil & Gas
+BPCL.NS,Bharat Petroleum,Energy,Oil & Gas
+IOC.NS,Indian Oil Corporation,Energy,Oil & Gas
+HINDPETRO.NS,Hindustan Petroleum,Energy,Oil & Gas
+
+NTPC.NS,NTPC,Power,Power Generation
+POWERGRID.NS,Power Grid Corporation,Power,Power Transmission
+TATAPOWER.NS,Tata Power,Power,Integrated Utilities
+ADANIPOWER.NS,Adani Power,Power,Power Generation
+NHPC.NS,NHPC,Power,Hydroelectric Power
+
+SUNPHARMA.NS,Sun Pharmaceutical,Healthcare,Pharmaceuticals
+CIPLA.NS,Cipla,Healthcare,Pharmaceuticals
+DRREDDY.NS,Dr. Reddy's Laboratories,Healthcare,Pharmaceuticals
+DIVISLAB.NS,Divi's Laboratories,Healthcare,Pharmaceuticals
+LUPIN.NS,Lupin,Healthcare,Pharmaceuticals
+
+APOLLOHOSP.NS,Apollo Hospitals,Healthcare,Hospitals
+MAXHEALTH.NS,Max Healthcare Institute,Healthcare,Hospitals
+FORTIS.NS,Fortis Healthcare,Healthcare,Hospitals
+NH.NS,Narayana Hrudayalaya,Healthcare,Hospitals
+KIMS.NS,Krishna Institute of Medical Sciences,Healthcare,Hospitals
+
+ULTRACEMCO.NS,UltraTech Cement,Materials,Cement
+SHREECEM.NS,Shree Cement,Materials,Cement
+AMBUJACEM.NS,Ambuja Cements,Materials,Cement
+ACC.NS,ACC,Materials,Cement
+DALBHARAT.NS,Dalmia Bharat,Materials,Cement
+
+TATASTEEL.NS,Tata Steel,Materials,Steel
+JSWSTEEL.NS,JSW Steel,Materials,Steel
+JINDALSTEL.NS,Jindal Steel & Power,Materials,Steel
+SAIL.NS,Steel Authority of India,Materials,Steel
+APLAPOLLO.NS,Apollo Tubes,Materials,Steel Products
+
+HINDALCO.NS,Hindalco Industries,Materials,Non-Ferrous Metals
+NATIONALUM.NS,National Aluminium Company,Materials,Aluminium
+VEDL.NS,Vedanta,Materials,Diversified Metals
+HINDZINC.NS,Hindustan Zinc,Materials,Zinc
+NMDC.NS,NMDC,Materials,Mining
+
+MARUTI.NS,Maruti Suzuki,Automobile,Passenger Vehicles
+M&M.NS,Mahindra & Mahindra,Automobile,Passenger Vehicles
+TATAMOTORS.NS,Tata Motors,Automobile,Passenger Vehicles
+HYUNDAI.NS,Hyundai Motor India,Automobile,Passenger Vehicles
+ASHOKLEY.NS,Ashok Leyland,Automobile,Commercial Vehicles
+
+EICHERMOT.NS,Eicher Motors,Automobile,Two Wheelers
+HEROMOTOCO.NS,Hero MotoCorp,Automobile,Two Wheelers
+TVSMOTOR.NS,TVS Motor Company,Automobile,Two Wheelers
+BAJAJ-AUTO.NS,Bajaj Auto,Automobile,Two Wheelers
+OLAELEC.NS,OLA Electric Mobility,Automobile,Electric Vehicles
+
+SIEMENS.NS,Siemens India,Capital Goods,Industrial Engineering
+ABB.NS,ABB India,Capital Goods,Industrial Engineering
+CUMMINSIND.NS,Cummins India,Capital Goods,Industrial Engineering
+THERMAX.NS,Thermax,Capital Goods,Industrial Engineering
+BHEL.NS,Bharat Heavy Electricals,Capital Goods,Industrial Equipment
+
+LT.NS,Larsen & Toubro,Infrastructure,Engineering & Construction
+RVNL.NS,Rail Vikas Nigam,Infrastructure,Rail Infrastructure
+IRCON.NS,IRCON International,Infrastructure,Rail Infrastructure
+NBCC.NS,NBCC India,Infrastructure,Construction
+KEC.NS,KEC International,Infrastructure,Engineering
+
+ASIANPAINT.NS,Asian Paints,Consumer,Paints
+BERGEPAINT.NS,Berger Paints,Consumer,Paints
+KANSAINER.NS,Kansai Nerolac Paints,Consumer,Paints
+INDIGO.NS,InterGlobe Aviation,Consumer,Aviation
+IRCTC.NS,Indian Railway Catering and Tourism Corporation,Consumer,Travel & Tourism
+
+HINDUNILVR.NS,Hindustan Unilever,Consumer Staples,FMCG
+ITC.NS,ITC,Consumer Staples,FMCG
+NESTLEIND.NS,Nestle India,Consumer Staples,FMCG
+BRITANNIA.NS,Britannia Industries,Consumer Staples,FMCG
+DABUR.NS,Dabur India,Consumer Staples,FMCG
+
+TITAN.NS,Titan Company,Consumer Discretionary,Consumer Durables
+TRENT.NS,Trent,Consumer Discretionary,Retail
+DMART.NS,Avenue Supermarts,Consumer Discretionary,Retail
+VBL.NS,Varun Beverages,Consumer Discretionary,Beverages
+PAGEIND.NS,Page Industries,Consumer Discretionary,Apparel
+
+BHARTIARTL.NS,Bharti Airtel,Telecommunication,Telecom Services
+TATACOMM.NS,Tata Communications,Telecommunication,Telecom Services
+INDUSTOWER.NS,Indus Towers,Telecommunication,Telecom Infrastructure
+HFCL.NS,HFCL,Telecommunication,Telecom Equipment
+TEJASNET.NS,Tejas Networks,Telecommunication,Networking Equipment
+
+ADANIPORTS.NS,Adani Ports & SEZ,Logistics,Ports
+CONCOR.NS,Container Corporation of India,Logistics,Logistics
+DELHIVERY.NS,Delhivery,Logistics,Logistics
+BLUEDART.NS,Blue Dart Express,Logistics,Courier
+TCI.NS,Transport Corporation of India,Logistics,Logistics
