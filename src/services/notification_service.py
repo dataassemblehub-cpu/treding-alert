@@ -57,8 +57,12 @@ class NotificationService:
         return success
 
     def _send_to_telegram(self, message: str) -> bool:
+        from dotenv import load_dotenv
+        load_dotenv()
+        
         bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
         chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+        print("Telegram Credentials:", bot_token, chat_id)
         
         if not bot_token or not chat_id:
             logging.warning("Telegram credentials not found in env vars. Printing to console instead:")
