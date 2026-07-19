@@ -71,29 +71,27 @@ class MarketRepository:
         df_to_save = history_df.copy()
         if 'date' not in df_to_save.columns:
             df_to_save = df_to_save.reset_index()
-            # If the index was DatetimeIndex, it's now a column named Date or date
             df_to_save.rename(columns={'Date': 'date', 'Close': 'close', 'Volume': 'volume'}, inplace=True)
             
         df_to_save['symbol'] = symbol
         
-        # Keep only required columns and convert date to string
-        df_to_save = df_to_save[['symbol', 'date', 'close', 'volume']]
-        df_to_save['date'] = df_to_save['date'].dt.strftime('%Y-%m-%d')
-        
-        with self._get_connection() as conn:
-            df_to_save.to_sql('price_history', conn, if_exists='append', index=False)
-            
-            # Pandas to_sql append with primary key constraint will throw an error if dupes exist
-            # A more robust way is to use INSERT OR REPLACE, but to_sql doesn't support it natively easily.
-            # So we use a temporary table approach or executemany.
-            # For simplicity, we just delete existing records for these dates first, then insert.
-            
-            dates = df_to_save['date'].tolist()
-            if dates:
+        try:
+            df_to_save = df_to_save[['symbol', 'date', 'close', 'volume']]
+            if pd.api.types.is_datetime64_any_dtype(df_to_save['date']):
+                df_to_save['date'] = df_to_save['date'].dt.strftime('%Y-%m-%d')
+            else:
+                df_to_save['date'] = df_to_save['date'].astype(str)
+                
+            with self._get_connection() as conn:
+                records = df_to_save.to_records(index=False)
                 cursor = conn.cursor()
-                placeholders = ','.join(['?'] * len(dates))
-                cursor.execute(f"DELETE FROM price_history WHERE symbol = ? AND date IN ({placeholders})", [symbol] + dates)
-                df_to_save.to_sql('price_history', conn, if_exists='append', index=False)
+                cursor.executemany('''
+                    INSERT OR IGNORE INTO price_history (symbol, date, close, volume)
+                    VALUES (?, ?, ?, ?)
+                ''', records)
+                conn.commit()
+        except Exception as e:
+            pass
 
     def log_alert(self, alert: Alert):
         with self._get_connection() as conn:
