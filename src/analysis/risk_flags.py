@@ -26,7 +26,11 @@ def analyze_risk(financials) -> AnalysisResult:
                 break
                 
         if neg_count >= 4:
-            flags.append("NEGATIVE_FCF_CRITICAL")
+            rev_growth = financials.revenue_growth
+            if rev_growth is not None and rev_growth > 0.15:
+                flags.append("NEGATIVE_FCF_SEVERE")
+            else:
+                flags.append("NEGATIVE_FCF_CRITICAL")
         elif neg_count >= 2:
             flags.append("NEGATIVE_FCF_SEVERE")
         elif neg_count == 1:

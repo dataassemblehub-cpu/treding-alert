@@ -93,11 +93,42 @@ def main():
     if args.dry_run:
         print("\n--- VALIDATION SUMMARY REPORT ---")
         counts = {}
+        dq_counts = {}
         for d in ranked_decisions:
             counts[d.recommendation] = counts.get(d.recommendation, 0) + 1
+            dq_counts[d.data_quality] = dq_counts.get(d.data_quality, 0) + 1
+            
         for rec, count in sorted(counts.items()):
             print(f"{rec}: {count}")
         print("---------------------------------")
+        
+        import json
+        from datetime import datetime
+        import csv
+        
+        os.makedirs("validation_reports", exist_ok=True)
+        run_date = datetime.now().strftime("%Y-%m-%d")
+        
+        report_data = {
+            "model_version": "phase_3.1_v1",
+            "run_date": run_date,
+            "total_symbols": len(ranked_decisions),
+            "decisions": counts,
+            "data_quality": dq_counts
+        }
+        
+        json_path = f"validation_reports/validation_{run_date}.json"
+        with open(json_path, "w") as f:
+            json.dump(report_data, f, indent=2)
+            
+        csv_path = f"validation_reports/validation_{run_date}.csv"
+        with open(csv_path, "w", newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["symbol", "recommendation", "data_quality", "score", "transition_alert"])
+            for d in ranked_decisions:
+                writer.writerow([d.symbol, d.recommendation, d.data_quality, d.investment_score, d.transition_alert or ""])
+                
+        logging.info(f"Saved validation reports to {json_path} and {csv_path}")
     else:
         telegram_router.route_decisions(ranked_decisions)
         
