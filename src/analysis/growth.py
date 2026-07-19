@@ -5,8 +5,8 @@ def analyze_growth(financials: dict) -> AnalysisResult:
     if not financials:
         return AnalysisResult("growth", {"error": "No financials"}, ["NO_DATA"])
         
-    rev_growth = financials.get("revenue_growth")
-    earn_growth = financials.get("earnings_growth")
+    rev_growth = financials.revenue_growth
+    earn_growth = financials.earnings_growth
     
     if rev_growth is not None and rev_growth > 0.10:
         flags.append("HIGH_REVENUE_GROWTH")

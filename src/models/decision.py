@@ -20,6 +20,7 @@ class InvestmentDecision:
     warnings: List[str] = field(default_factory=list)
     
     data_quality: str = "UNKNOWN"
+    transition_alert: str = None
     
     data_snapshot_timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-    model_version: str = "phase_3_v1"
+    model_version: str = "phase_3.1_v1"

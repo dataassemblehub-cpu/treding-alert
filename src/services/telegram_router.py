@@ -31,8 +31,13 @@ class TelegramRouter:
             f"Confidence: {decision.confidence}\n",
             f"Investment Horizon: {decision.investment_horizon}",
             f"Review Period: {decision.review_period}\n",
-            f"<b>Why:</b>"
         ]
+        
+        if decision.transition_alert:
+            alert_icon = "🟢" if "UPGRADE" in decision.transition_alert else "🔴"
+            lines.append(f"{alert_icon} <b>Decision {decision.transition_alert}</b>\n")
+            
+        lines.append(f"<b>Why:</b>")
         for t in decision.thesis:
             lines.append(f"✓ {t}")
             

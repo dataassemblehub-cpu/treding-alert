@@ -4,6 +4,7 @@ from typing import List, Optional, Dict
 from datetime import datetime
 import os
 from src.models import Stock, Alert
+from src.models.analysis import FinancialMetrics, MetricProvenance
 
 class MarketRepository:
     def __init__(self, db_path: str = None):
@@ -119,41 +120,59 @@ class MarketRepository:
             cursor.execute("SELECT param_key, param_value FROM strategy_config WHERE strategy_name = ?", (strategy,))
             return {row[0]: row[1] for row in cursor.fetchall()}
 
-    def get_financial_metrics(self, symbol: str) -> Optional[dict]:
+    def get_financial_metrics(self, symbol: str) -> Optional[FinancialMetrics]:
+        import json
+        from src.models.analysis import FinancialMetrics, MetricProvenance
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 SELECT pe_ratio, forward_pe, peg_ratio, debt_to_equity, 
                        return_on_equity, free_cash_flow, operating_margin, 
-                       revenue_growth, earnings_growth
+                       revenue_growth, earnings_growth, historical_fcf,
+                       provenance_source, provenance_timestamp
                 FROM financial_metrics WHERE symbol = ?
             ''', (symbol,))
             row = cursor.fetchone()
             if not row:
                 return None
-            return {
-                "pe_ratio": row[0],
-                "forward_pe": row[1],
-                "peg_ratio": row[2],
-                "debt_to_equity": row[3],
-                "return_on_equity": row[4],
-                "free_cash_flow": row[5],
-                "operating_margin": row[6],
-                "revenue_growth": row[7],
-                "earnings_growth": row[8]
-            }
+                
+            try:
+                hist_fcf = json.loads(row[9]) if row[9] else []
+            except Exception:
+                hist_fcf = []
+                
+            prov = MetricProvenance(source=row[10] or "unknown", timestamp=row[11] or "")
+            
+            return FinancialMetrics(
+                symbol=symbol,
+                pe_ratio=row[0],
+                forward_pe=row[1],
+                peg_ratio=row[2],
+                debt_to_equity=row[3],
+                return_on_equity=row[4],
+                operating_margin=row[6],
+                revenue_growth=row[7],
+                earnings_growth=row[8],
+                historical_fcf=hist_fcf,
+                provenance=prov
+            )
 
     def save_financial_metrics(self, metrics) -> None:
+        import json
         with self._get_connection() as conn:
             cursor = conn.cursor()
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            hist_fcf = json.dumps(metrics.historical_fcf) if metrics.historical_fcf else None
+            
             cursor.execute('''
                 INSERT OR REPLACE INTO financial_metrics 
                 (symbol, pe_ratio, forward_pe, peg_ratio, debt_to_equity, return_on_equity, 
-                 free_cash_flow, operating_margin, revenue_growth, earnings_growth, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 free_cash_flow, operating_margin, revenue_growth, earnings_growth, updated_at,
+                 historical_fcf, provenance_source, provenance_timestamp)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 metrics.symbol, metrics.pe_ratio, metrics.forward_pe, metrics.peg_ratio,
                 metrics.debt_to_equity, metrics.return_on_equity, metrics.free_cash_flow,
-                metrics.operating_margin, metrics.revenue_growth, metrics.earnings_growth, now
+                metrics.operating_margin, metrics.revenue_growth, metrics.earnings_growth, now,
+                hist_fcf, metrics.provenance.source, metrics.provenance.timestamp
             ))

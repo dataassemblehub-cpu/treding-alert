@@ -42,8 +42,14 @@ class ScoringEngine:
             
         r_res = analysis_results.get("risk")
         if r_res:
-            if "NEGATIVE_FCF" in r_res.flags: risk -= 30
-            if "HIGH_DEBT" in r_res.flags: risk -= 30
+            if "NEGATIVE_FCF_CRITICAL" in r_res.flags: risk -= 60
+            elif "NEGATIVE_FCF_SEVERE" in r_res.flags: risk -= 40
+            elif "NEGATIVE_FCF_WARNING" in r_res.flags: risk -= 20
+            
+            if "HIGH_DEBT_CRITICAL" in r_res.flags: risk -= 50
+            elif "HIGH_DEBT_SEVERE" in r_res.flags: risk -= 30
+            elif "HIGH_DEBT_WARNING" in r_res.flags: risk -= 10
+            
             if "NO_DATA" in r_res.flags: risk = 50.0
             
         return ComponentScores(

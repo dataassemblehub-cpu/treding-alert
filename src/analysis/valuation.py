@@ -5,7 +5,7 @@ def analyze_valuation(financials: dict) -> AnalysisResult:
     if not financials:
         return AnalysisResult("valuation", {"error": "No financials"}, ["NO_DATA"])
         
-    pe = financials.get("pe_ratio")
+    pe = financials.pe_ratio
     if pe is not None:
         if pe < 15:
             flags.append("UNDERVALUED")
