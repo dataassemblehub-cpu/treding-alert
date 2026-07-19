@@ -24,26 +24,27 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+            python-version: '3.12'
+            cache: 'pip'
           
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Cache price history database
+      - name: Cache market database
         uses: actions/cache@v4
         with:
-          path: data/price_history.db
-          key: price-history-db-${{ github.run_id }}
+          path: data/market_data.db
+          key: market-data-db-${{ github.run_id }}
           restore-keys: |
-            price-history-db-
+            market-data-db-
           
       - name: Run Screener
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_PERSONAL: ${{ secrets.TELEGRAM_CHAT_ID_PERSONAL }}
+          TELEGRAM_CHAT_ID_GROUP: ${{ secrets.TELEGRAM_CHAT_ID_GROUP }}
         run: python main.py
         
       - name: Commit Database Updates
