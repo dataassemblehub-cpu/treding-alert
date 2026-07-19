@@ -66,37 +66,40 @@ class TelegramRouter:
         if not self.config.get('enabled', False):
             return False
             
-        # Only route actionable decisions (skip WAIT, AVOID for noise reduction)
-        actionable = [d for d in decisions if d.recommendation not in ["WAIT", "AVOID", "WATCHLIST"]]
-        if not actionable:
-            return True
-            
         bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
         if not bot_token:
-            logging.warning("No TELEGRAM_BOT_TOKEN found. Printing to console.")
-            for d in actionable:
-                print(self.format_decision(d))
-            return True
+            logging.warning("TELEGRAM_BOT_TOKEN not found. Notifications skipped.")
+            return False
             
         destinations = self.config.get('destinations', [])
-        success = True
+        success_count = 0
         
         for dest in destinations:
             if not dest.get('enabled', False):
                 continue
                 
-            chat_id = os.environ.get(f"TELEGRAM_CHAT_ID_{dest['name'].upper()}") or os.environ.get("TELEGRAM_CHAT_ID")
-            profile = dest.get('message_profile', 'detailed')
+            chat_id_env = f"TELEGRAM_CHAT_ID_{dest['name'].upper()}"
+            chat_id = os.environ.get(chat_id_env)
             
+            if not chat_id:
+                logging.warning(f"Missing {chat_id_env} in .env file. Skipping {dest['name']} route.")
+                continue
+                
+            allow_all = dest.get('detailed_research_alerts', False)
             blocks = []
-            for d in actionable:
-                blocks.append(self.format_decision(d, profile))
+            
+            for decision in decisions:
+                if not allow_all and decision.recommendation in ["WAIT", "AVOID", "WATCHLIST", "RESEARCH"]:
+                    continue
+                    
+                blocks.append(self.format_decision(decision))
                 blocks.append("\n───────────────\n")
+            
+            if not blocks:
+                continue
                 
             final_msg = "\n".join(blocks)
             
-            if chat_id:
-                try:
                     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
                     payload = {"chat_id": chat_id, "text": final_msg, "parse_mode": "HTML"}
                     resp = requests.post(url, json=payload, timeout=10)
