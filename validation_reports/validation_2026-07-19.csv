@@ -1,4 +1,2 @@
 symbol,recommendation,data_quality,score,transition_alert
 TCS.NS,AVOID,HIGH,69.0,
-HDFCBANK.NS,WATCHLIST,MEDIUM,64.0,
-TATASTEEL.NS,AVOID,MEDIUM,49.0,

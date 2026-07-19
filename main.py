@@ -73,7 +73,7 @@ def main():
             
             data_qual = financials.data_quality if financials else "INSUFFICIENT"
             decision = decision_engine.evaluate(symbol, analysis_results, entry_score, data_quality=data_qual)
-            decision.company_name = stock.company_name or ""
+            decision.company_name = stock.company or ""
             
             transition = detector.detect_transition(decision)
             if transition:

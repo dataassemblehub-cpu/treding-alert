@@ -5,15 +5,14 @@ from datetime import datetime
 @dataclass
 class InvestmentDecision:
     symbol: str
-    company_name: str = ""
-    recommendation: str = "WAIT"   
     investment_horizon: str
     review_period: str
-    
     investment_score: float
     confidence: str
-    
     scores: Dict[str, float]
+    
+    company_name: str = ""
+    recommendation: str = "WAIT"   
     
     thesis: List[str] = field(default_factory=list)
     red_flags: List[str] = field(default_factory=list)
