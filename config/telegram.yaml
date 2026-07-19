@@ -1,0 +1,10 @@
+notifications:
+  telegram:
+    enabled: true
+    destinations:
+      - name: personal
+        enabled: true
+        message_profile: detailed
+      - name: group
+        enabled: false
+        message_profile: summary

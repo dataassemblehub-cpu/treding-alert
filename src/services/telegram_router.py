@@ -1,0 +1,94 @@
+import logging
+import requests
+import yaml
+import os
+from typing import List
+from dotenv import load_dotenv
+from src.models.decision import InvestmentDecision
+
+class TelegramRouter:
+    def __init__(self, db_path=None):
+        self._load_settings()
+        load_dotenv()
+        
+    def _load_settings(self):
+        settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'config', 'telegram.yaml')
+        try:
+            with open(settings_path, 'r') as f:
+                self.config = yaml.safe_load(f).get('notifications', {}).get('telegram', {})
+        except FileNotFoundError:
+            self.config = {'enabled': True, 'destinations': [{'name': 'personal', 'enabled': True, 'message_profile': 'detailed'}]}
+
+    def format_decision(self, decision: InvestmentDecision, profile: str = "detailed") -> str:
+        lines = [
+            f"📊 <b>INVESTMENT OPPORTUNITY</b>",
+            f"<b>{decision.symbol}</b>",
+            f"Recommendation: <b>{decision.recommendation}</b>\n",
+            f"Overall Score: {decision.investment_score}/100",
+            f"Business Score: {decision.scores.get('quality', 0):.0f}/100",
+            f"Entry Score: {decision.scores.get('entry', 0):.0f}/100",
+            f"Risk Score: {decision.scores.get('risk', 0):.0f}/100",
+            f"Confidence: {decision.confidence}\n",
+            f"Investment Horizon: {decision.investment_horizon}",
+            f"Review Period: {decision.review_period}\n",
+            f"<b>Why:</b>"
+        ]
+        for t in decision.thesis:
+            lines.append(f"✓ {t}")
+            
+        if decision.warnings:
+            lines.append(f"\n<b>Warnings:</b>")
+            for w in decision.warnings:
+                lines.append(f"⚠ {w}")
+                
+        if decision.red_flags:
+            lines.append(f"\n<b>Red Flags:</b>")
+            for r in decision.red_flags:
+                lines.append(f"❌ {r}")
+                
+        return "\n".join(lines)
+
+    def route_decisions(self, decisions: List[InvestmentDecision]) -> bool:
+        if not self.config.get('enabled', False):
+            return False
+            
+        # Only route actionable decisions (skip WAIT, AVOID for noise reduction)
+        actionable = [d for d in decisions if d.recommendation not in ["WAIT", "AVOID", "WATCHLIST"]]
+        if not actionable:
+            return True
+            
+        bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+        if not bot_token:
+            logging.warning("No TELEGRAM_BOT_TOKEN found. Printing to console.")
+            for d in actionable:
+                print(self.format_decision(d))
+            return True
+            
+        destinations = self.config.get('destinations', [])
+        success = True
+        
+        for dest in destinations:
+            if not dest.get('enabled', False):
+                continue
+                
+            chat_id = os.environ.get(f"TELEGRAM_CHAT_ID_{dest['name'].upper()}") or os.environ.get("TELEGRAM_CHAT_ID")
+            profile = dest.get('message_profile', 'detailed')
+            
+            blocks = []
+            for d in actionable:
+                blocks.append(self.format_decision(d, profile))
+                blocks.append("\n───────────────\n")
+                
+            final_msg = "\n".join(blocks)
+            
+            if chat_id:
+                try:
+                    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+                    payload = {"chat_id": chat_id, "text": final_msg, "parse_mode": "HTML"}
+                    resp = requests.post(url, json=payload, timeout=10)
+                    resp.raise_for_status()
+                    logging.info(f"Delivered to {dest['name']}")
+                except Exception as e:
+                    logging.error(f"Failed delivery to {dest['name']}: {e}")
+                    success = False
+        return success

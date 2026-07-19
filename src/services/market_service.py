@@ -2,10 +2,12 @@ import logging
 from src.repositories.market_repo import MarketRepository
 from src.models import Stock
 from src.fetcher import backfill_history
+from src.providers.base import FinancialDataProvider
 
 class MarketService:
-    def __init__(self, repo: MarketRepository):
+    def __init__(self, repo: MarketRepository, provider: FinancialDataProvider = None):
         self.repo = repo
+        self.provider = provider
 
     def prepare_stock(self, symbol: str) -> Stock:
         """
@@ -40,5 +42,16 @@ class MarketService:
                     stock = self.repo.get_stock(symbol) # Reload
             except Exception as e:
                 logging.error(f"[{symbol}] Error updating history: {e}")
+                
+        # Also fetch financials if provider is set
+        if self.provider:
+            # Basic caching logic: only fetch if not in DB or can force fetch. 
+            # We'll just fetch once per run for now if missing.
+            current_metrics = self.repo.get_financial_metrics(symbol)
+            if not current_metrics:
+                logging.info(f"[{symbol}] Fetching fundamental metrics via Provider")
+                metrics = self.provider.get_financial_metrics(symbol)
+                if metrics:
+                    self.repo.save_financial_metrics(metrics)
                 
         return stock

@@ -1,4 +1,4 @@
 from .market_service import MarketService
-from .notification_service import NotificationService
+from .telegram_router import TelegramRouter
 
-__all__ = ["MarketService", "NotificationService"]
+__all__ = ["MarketService", "TelegramRouter"]

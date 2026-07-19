@@ -118,3 +118,42 @@ class MarketRepository:
             cursor = conn.cursor()
             cursor.execute("SELECT param_key, param_value FROM strategy_config WHERE strategy_name = ?", (strategy,))
             return {row[0]: row[1] for row in cursor.fetchall()}
+
+    def get_financial_metrics(self, symbol: str) -> Optional[dict]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT pe_ratio, forward_pe, peg_ratio, debt_to_equity, 
+                       return_on_equity, free_cash_flow, operating_margin, 
+                       revenue_growth, earnings_growth
+                FROM financial_metrics WHERE symbol = ?
+            ''', (symbol,))
+            row = cursor.fetchone()
+            if not row:
+                return None
+            return {
+                "pe_ratio": row[0],
+                "forward_pe": row[1],
+                "peg_ratio": row[2],
+                "debt_to_equity": row[3],
+                "return_on_equity": row[4],
+                "free_cash_flow": row[5],
+                "operating_margin": row[6],
+                "revenue_growth": row[7],
+                "earnings_growth": row[8]
+            }
+
+    def save_financial_metrics(self, metrics) -> None:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute('''
+                INSERT OR REPLACE INTO financial_metrics 
+                (symbol, pe_ratio, forward_pe, peg_ratio, debt_to_equity, return_on_equity, 
+                 free_cash_flow, operating_margin, revenue_growth, earnings_growth, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                metrics.symbol, metrics.pe_ratio, metrics.forward_pe, metrics.peg_ratio,
+                metrics.debt_to_equity, metrics.return_on_equity, metrics.free_cash_flow,
+                metrics.operating_margin, metrics.revenue_growth, metrics.earnings_growth, now
+            ))
