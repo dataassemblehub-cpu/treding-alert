@@ -100,12 +100,14 @@ class TelegramRouter:
                 
             final_msg = "\n".join(blocks)
             
-                    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-                    payload = {"chat_id": chat_id, "text": final_msg, "parse_mode": "HTML"}
-                    resp = requests.post(url, json=payload, timeout=10)
-                    resp.raise_for_status()
-                    logging.info(f"Delivered to {dest['name']}")
-                except Exception as e:
-                    logging.error(f"Failed delivery to {dest['name']}: {e}")
-                    success = False
-        return success
+            try:
+                url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+                payload = {"chat_id": chat_id, "text": final_msg, "parse_mode": "HTML"}
+                resp = requests.post(url, json=payload, timeout=10)
+                resp.raise_for_status()
+                logging.info(f"Delivered to {dest['name']}")
+                success_count += 1
+            except Exception as e:
+                logging.error(f"Failed delivery to {dest['name']}: {e}")
+                
+        return success_count > 0
