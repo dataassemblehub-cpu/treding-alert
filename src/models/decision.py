@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from typing import List, Dict
+from typing import Dict, List, Any
 from datetime import datetime
 
 @dataclass
 class InvestmentDecision:
     symbol: str
-    recommendation: str
-    
+    company_name: str = ""
+    recommendation: str = "WAIT"   
     investment_horizon: str
     review_period: str
     

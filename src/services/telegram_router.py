@@ -19,12 +19,21 @@ class TelegramRouter:
         except FileNotFoundError:
             self.config = {'enabled': True, 'destinations': [{'name': 'personal', 'enabled': True, 'message_profile': 'detailed'}]}
 
-    def format_decision(self, decision: InvestmentDecision, profile: str = "detailed") -> str:
+    def format_decision(self, decision: InvestmentDecision) -> str:
+        icon = {
+            "BUY": "🟢🟢",
+            "ACCUMULATE": "🟢",
+            "WATCHLIST": "🟡",
+            "WAIT": "⚪",
+            "RESEARCH": "🟠",
+            "AVOID": "🔴"
+        }.get(decision.recommendation, "⚪")
+        
+        name_display = f" - {decision.company_name}" if decision.company_name else ""
         lines = [
-            f"📊 <b>INVESTMENT OPPORTUNITY</b>",
-            f"<b>{decision.symbol}</b>",
-            f"Recommendation: <b>{decision.recommendation}</b>\n",
-            f"Overall Score: {decision.investment_score}/100",
+            f"{icon} <b>{decision.symbol}{name_display}</b>",
+            f"Recommendation: <b>{decision.recommendation}</b>",
+            f"Score: {decision.investment_score}/100",
             f"Business Score: {decision.scores.get('quality', 0):.0f}/100",
             f"Entry Score: {decision.scores.get('entry', 0):.0f}/100",
             f"Risk Score: {decision.scores.get('risk', 0):.0f}/100",
