@@ -1,0 +1,11 @@
+{
+  "model_version": "phase_3.1_v1",
+  "run_date": "2026-07-19",
+  "total_symbols": 1,
+  "decisions": {
+    "AVOID": 1
+  },
+  "data_quality": {
+    "HIGH": 1
+  }
+}

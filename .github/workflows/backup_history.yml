@@ -14,16 +14,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Restore price history cache
+      - name: Restore market database cache
         uses: actions/cache@v4
         with:
-          path: data/price_history.db
-          key: price-history-db-backup-${{ github.run_id }}
+          path: data/market_data.db
+          key: market-data-db-backup-${{ github.run_id }}
           restore-keys: |
-            price-history-db-
+            market-data-db-
           
       - name: Commit DB backup
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "[skip ci] Weekly backup of price_history.db"
-          file_pattern: 'data/price_history.db'
+          commit_message: "[skip ci] Weekly backup of market_data.db"
+          file_pattern: 'data/market_data.db'

@@ -1,39 +1,60 @@
-# Trading Alert System
+# Investment Intelligence Platform 📈
 
-An automated stock screener that checks for stocks near their 52-week or all-time lows and sends alerts via Telegram. Runs on GitHub Actions.
+An explainable, deterministic, multi-factor long-term investment intelligence platform for Indian equities. 
 
-## Setup Instructions
+This is **not** a simple stock screener. This system evaluates the fundamental business quality, financial risks, growth metrics, and current valuations of companies, translating them into human-readable, thesis-driven investment decisions.
 
-### 1. Telegram Bot Setup
-1. Message **@BotFather** on Telegram and send the `/newbot` command.
-2. Follow the prompts to create your bot.
-3. Save the **Bot Token** provided (it looks like `123456789:ABCdefGHIjklMNOpqrSTUvwxYZ`).
-4. Message your new bot at least once (e.g., say "hello").
-5. Visit `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates` in a web browser. Find the `"chat":{"id":...}` part and copy the numeric ID. This is your **Chat ID**.
+## 🧠 System Architecture
 
-### 2. GitHub Actions Setup
-1. Go to your GitHub repository -> **Settings** -> **Secrets and variables** -> **Actions**.
-2. Click **New repository secret**.
-3. Add a secret named `TELEGRAM_BOT_TOKEN` and paste your bot token.
-4. Add another secret named `TELEGRAM_CHAT_ID` and paste your chat ID.
+The pipeline processes stocks through a rigorous sequence of analytical gates:
 
-### 3. Local Testing
-Before enabling the schedule, test the script locally to ensure everything works and you don't burn GitHub Actions minutes on a broken run.
-1. Install dependencies: `pip install -r requirements.txt`
-2. Create a `.env` file in the root of the project with your secrets:
-   ```env
-   TELEGRAM_BOT_TOKEN=your_token_here
-   TELEGRAM_CHAT_ID=your_chat_id_here
-   ```
-3. Run the screener: `python src/main.py`
-4. Ensure you receive a message in Telegram if any stocks match the criteria.
+1. **Data Ingestion (`YFinanceProvider`)**: Fetches trailing 1-year price history alongside multi-year fundamental metrics (ROE, P/E, Debt/Equity, Free Cash Flow).
+2. **Data Quality Gate**: Automatically downgrades or rejects analysis (`RESEARCH` status) if the underlying financial data from Yahoo Finance is missing or corrupt.
+3. **Analytical Modules**:
+   - `Quality`: Assesses profitability (ROE, Operating Margins).
+   - `Growth`: Assesses YoY revenue and earnings expansion.
+   - `Valuation`: Assesses entry price multiples.
+   - `Risk`: Evaluates debt burdens and consecutive years of negative free cash flow.
+4. **Scoring Engine (`scoring.py`)**: Computes a dynamic 0-100 score based on configurable metric weights (`config/scoring.yaml`).
+5. **Decision Engine (`decision_engine.py`)**: Applies Hard Gates (e.g., severe red flags force an `AVOID` regardless of score) and classifies the stock into one of 6 decisions: **BUY**, **ACCUMULATE**, **WATCHLIST**, **WAIT**, **RESEARCH**, **AVOID**.
+6. **Decision Transition Tracker**: Compares today's decision against the historical database to detect upgrades (🟢) and downgrades (🔴).
+7. **Telegram Router**: Drops the noise (ignoring WAIT/AVOID) and routes actionable, thesis-driven alerts directly to your phone.
 
-### 4. Configuration
-- **Add stocks/categories**: Edit `config/universe.yaml`. No code changes are needed to add a new category. Make sure Indian stocks have the `.NS` (NSE) or `.BO` (BSE) suffix.
-- **Adjust thresholds**: Edit `config/settings.yaml` to change the `threshold_pct` (default 2% / 0.02) or `min_volume_ratio` (default 0.5).
+## 🚀 Usage
 
-## Infrastructure Notes
-- The screener uses GitHub Actions to run every 2 hours during market hours.
-- Price history data is cached across runs using GitHub Actions Cache to avoid downloading the entire history every time.
-- A backup workflow runs weekly to commit the SQLite database to the repository, ensuring the cache is never permanently lost.
-- Alert logs are committed back to the repository after every successful run to prevent duplicate alerts.
+### 1. Dry Run / Validation Mode
+Test the logic without writing to the database or triggering Telegram alerts. It outputs a distribution summary report at the end.
+```bash
+python main.py --dry-run
+```
+
+### 2. Targeted Testing
+Test specific symbols to audit the system's reasoning:
+```bash
+python main.py --test-symbols TCS.NS,HDFCBANK.NS --dry-run
+```
+
+### 3. Production Run
+Run the full universe, save the decisions to SQLite, and dispatch alerts to Telegram:
+```bash
+python main.py
+```
+
+### 4. Background Generators
+Update the stock universe and volatility baselines (automated weekly via GitHub Actions):
+```bash
+python src/generators/universe.py
+python src/generators/volatility.py
+```
+
+## ⚙️ Configuration
+
+- **Scoring Weights**: Adjust how much `Quality` vs `Valuation` matters in `config/scoring.yaml`.
+- **Telegram Routes**: Define multiple chat destinations (e.g., personal vs group) and verbosity profiles in `config/telegram.yaml`. Map these routes to actual IDs via your `.env` file (e.g., `TELEGRAM_CHAT_ID_PERSONAL`).
+- **Research Alerts**: Add `detailed_research_alerts: true` to a destination in `telegram.yaml` to receive alerts for *every* stock (including AVOID/WAIT) to audit the system's rejection reasoning.
+
+## 🗄️ Audit Trail & Backtesting
+
+Every decision made by the system is permanently logged in the local SQLite database (`data/market_data.db`) under the `investment_decisions` table. 
+
+This captures the exact `model_version`, data snapshot, individual component scores, and the generated thesis bullet points, completely preventing look-ahead bias and enabling robust historical backtesting.

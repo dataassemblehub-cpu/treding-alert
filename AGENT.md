@@ -1,259 +1,286 @@
-# Trading Alert System
+# AGENT.md
+
+# Trading Alert System - Coding Agent Contract
 
 ## Mission
 
-Build a production-quality automated trading alert platform for Indian equities.
+You are working on a production-oriented Indian equity market
+intelligence and long-term investment research system.
 
-The system should be:
+The system is designed to:
 
-- Reliable
-- Deterministic
-- Modular
-- Extensible
-- Low maintenance
-- Cost efficient
-- Easy to run on GitHub Actions
+-   Analyze companies.
+-   Evaluate quality.
+-   Evaluate growth.
+-   Evaluate valuation.
+-   Evaluate market conditions.
+-   Evaluate risk.
+-   Rank opportunities.
+-   Explain recommendations.
+-   Communicate investment horizons and review periods.
+-   Deliver notifications through multiple Telegram destinations.
 
-The long-term vision is to evolve from a simple 52-week low screener into a multi-strategy market screening platform.
+The system is not a guaranteed-return engine.
 
----
+Never describe a score as a probability of profit.
 
-# Guiding Principles
+------------------------------------------------------------------------
 
-## Architecture
+# 1. Before You Code
 
-Always prioritize
+Read these files first:
 
-- Separation of concerns
-- SOLID principles
-- Composition over inheritance
-- Small modules
-- Reusable components
+``` text
+ARCHITECTURE.md
+SKILLS.md
+PRD.md
+```
 
-Avoid large monolithic files.
+Then inspect:
 
-Every module should have one responsibility.
-
----
-
-## Configuration
-
-Human editable values belong inside
-
+``` text
+src/
 config/
+database/
+tests/
+.github/
+```
 
-Examples
+Understand the current implementation before making changes.
 
-- Telegram
-- Scheduler
-- Feature flags
-- ATR multiplier
-- Default thresholds
+------------------------------------------------------------------------
 
-Generated data must NEVER overwrite configuration files.
+# 2. Non-Negotiable Architecture
 
----
+The following boundaries must be preserved:
 
-## Generated Data
+``` text
+Data Providers
+      ↓
+Repositories
+      ↓
+Analysis
+      ↓
+Scoring
+      ↓
+Decision Engine
+      ↓
+Portfolio Layer
+      ↓
+Alert Model
+      ↓
+Notification Service
+      ↓
+Telegram Router
+```
 
-Market metadata belongs in
+Do not bypass layers.
 
-- SQLite
-or
+------------------------------------------------------------------------
 
-- data/
+# 3. Decision Philosophy
 
-Never inside config/.
+The system must distinguish:
 
-Examples
+``` text
+Good Business
+```
 
-- ATR
-- Sector
-- Industry
-- Market Cap
-- Universe rankings
+from:
 
----
+``` text
+Good Investment Opportunity Right Now
+```
 
-## Database
+Therefore the system must calculate independently:
 
-SQLite is the single source of truth.
+``` text
+Business Score
+Entry Score
+Risk Score
+Confidence
+```
 
-Prefer SQLite over JSON.
+Then produce:
 
-Avoid duplicate storage.
+``` text
+Recommendation
+Investment Horizon
+Review Period
+Thesis Validity
+Reasons
+Warnings
+```
 
-Database should contain
+------------------------------------------------------------------------
 
-- stock metadata
-- volatility metrics
-- cached history
-- alert history
-- strategy metadata
+# 4. Recommendation Safety
 
----
+Never automatically convert:
 
-## Strategies
+``` text
+High Score
+```
 
-Strategies must be independent modules.
+into:
 
-Current
+``` text
+Guaranteed BUY
+```
 
-- Near52WeekLow
+Recommendations must be explainable.
 
-Future
+Possible outcomes:
 
-- NearATH
-- Breakout
-- RSI
-- EMA Cross
-- Gap Down
-- High Volume
-- Moving Average Reversal
+``` text
+RESEARCH
+WATCHLIST
+WAIT
+ACCUMULATE
+BUY_SMALL
+BUY
+HOLD
+REDUCE
+AVOID
+```
 
-Adding a strategy should require minimal changes.
+The final decision must be deterministic based on documented rules.
 
-Never hardcode strategy logic into main.py.
+------------------------------------------------------------------------
 
----
+# 5. Investment Duration
 
-## GitHub Actions
+Every recommendation must clearly communicate:
 
-Separate
+``` text
+Investment Horizon
+```
 
-Metadata generation
+Examples:
 
-from
+``` text
+3-6 months
+6-12 months
+1-3 years
+3-5 years
+5+ years
+```
 
-Screening.
+Also communicate:
 
-Heavy calculations must never run every two hours.
+``` text
+Review Period
+```
 
----
+Examples:
 
-## Performance
+``` text
+Monthly
+Quarterly
+After Earnings
+Semi-annually
+```
 
-Minimize
+The horizon is not a guarantee.
 
-- API requests
-- history downloads
-- repeated calculations
+------------------------------------------------------------------------
 
-Always reuse cached data.
+# 6. Telegram Requirements
 
-Only fetch incremental updates.
+Telegram must support multiple destinations.
 
----
+Example:
 
-## Logging
+``` text
+Personal Chat
+Investment Group
+Public Channel
+Admin Chat
+```
 
-Every workflow should produce structured logs.
+Use a router.
 
-Log
+Do not put multiple chat IDs directly inside strategy code.
 
-- start
-- finish
-- execution time
-- failures
-- skipped symbols
+A failure in one destination must not prevent delivery to other
+destinations.
 
-Never silently ignore exceptions.
+------------------------------------------------------------------------
 
----
+# 7. Data Integrity
 
-## Error Handling
+Never silently:
 
-External APIs are unreliable.
+``` text
+missing value → 0
+failed API call → valid metric
+stale data → current data
+```
 
-Always
+Track data quality explicitly.
 
-- retry
-- continue processing remaining symbols
-- log failures
+------------------------------------------------------------------------
 
-One bad ticker should never stop the workflow.
+# 8. Change Discipline
 
----
+Prefer small, focused changes.
 
-## Alerting
+Do not:
 
-Telegram alerts should be concise but informative.
+-   Rewrite unrelated modules.
+-   Rename files without a reason.
+-   Change database schema casually.
+-   Remove working strategies.
+-   Introduce duplicate abstractions.
 
-Include
+If a change requires architectural deviation, explain it before
+implementation.
 
-- symbol
-- company
-- sector
-- strategy
-- trigger reason
-- threshold
-- current price
+------------------------------------------------------------------------
 
-Avoid duplicate alerts.
+# 9. Testing
 
----
+Before declaring completion:
 
-## Code Quality
+``` text
+Run unit tests
+Run integration tests
+Test empty data
+Test missing data
+Test failed API responses
+Test Telegram failure isolation
+Test duplicate alert handling
+```
 
-Every new module must include
+------------------------------------------------------------------------
 
-- type hints
-- docstrings
-- logging
-- unit-testable functions
+# 10. Final Response Requirements
 
-Prefer dataclasses.
+After implementation, report:
 
-Avoid global variables.
+``` text
+1. Summary
+2. Files changed
+3. Database changes
+4. Configuration changes
+5. Tests executed
+6. Known limitations
+7. Recommended next steps
+```
 
-Avoid magic numbers.
+Do not claim success if tests were not actually executed.
 
----
+------------------------------------------------------------------------
 
-## Documentation
+# 11. Priority Order
 
-Whenever architecture changes
+When tradeoffs exist, prioritize:
 
-Update
-
-- README
-- schema documentation
-- workflow documentation
-
-Documentation is part of the implementation.
-
----
-
-## AI Implementation Rules
-
-Before implementing any feature
-
-1. Analyze existing architecture.
-2. Identify affected modules.
-3. Produce an implementation plan.
-4. Wait for approval.
-5. Implement incrementally.
-6. Validate.
-7. Update documentation.
-
-Never rewrite the project without justification.
-
-Always preserve backward compatibility unless instructed otherwise.
-
----
-
-## Future Vision
-
-The architecture should support
-
-- Portfolio watchlists
-- Multiple exchanges
-- Backtesting
-- AI ranking
-- ML scoring
-- Web dashboard
-- REST API
-- Mobile notifications
-- Discord
-- Email
-- Slack
+1.  Correctness
+2.  Capital-risk awareness
+3.  Data integrity
+4.  Explainability
+5.  Testability
+6.  Maintainability
+7.  Performance
+8.  Feature breadth

@@ -1,0 +1,6 @@
+weights:
+  quality: 40
+  growth: 20
+  valuation: 20
+  entry: 10
+  risk: 10
