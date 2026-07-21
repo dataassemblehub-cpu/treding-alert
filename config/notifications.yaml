@@ -1,0 +1,17 @@
+notifications:
+  telegram:
+    enabled: true
+    destinations:
+      - name: personal
+        enabled: true
+        detailed_research_alerts: false
+      - name: group
+        enabled: false
+  email:
+    enabled: true
+    # Add SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS to .env
+    destinations:
+      - name: default_email
+        enabled: true
+        # Add EMAIL_TO_DEFAULT_EMAIL to .env (e.g. EMAIL_TO_DEFAULT_EMAIL=me@example.com)
+        detailed_research_alerts: false
