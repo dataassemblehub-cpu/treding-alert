@@ -1,6 +1,9 @@
 # Secrets
 .env
 
+#reports
+/validation_reports/
+
 # Python
 __pycache__/
 *.py[cod]
