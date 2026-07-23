@@ -1,6 +1,8 @@
 import argparse
 import logging
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from src.repositories.market_repo import MarketRepository
 from src.providers.yfinance_provider import YFinanceProvider
 from src.services.market_service import MarketService
