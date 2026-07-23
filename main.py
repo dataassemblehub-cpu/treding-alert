@@ -4,7 +4,7 @@ import os
 from src.repositories.market_repo import MarketRepository
 from src.providers.yfinance_provider import YFinanceProvider
 from src.services.market_service import MarketService
-from src.services.telegram_router import TelegramRouter
+from src.services.notifications.manager import NotificationManager
 from src.strategies.scoring import ScoringEngine
 from src.strategies.decision_engine import DecisionEngine
 from src.strategies.decision_change_detector import DecisionChangeDetector
@@ -36,7 +36,7 @@ def main():
     repo = MarketRepository()
     provider = YFinanceProvider()
     market_service = MarketService(repo, provider)
-    telegram_router = TelegramRouter(db_path=repo.db_path)
+    notification_manager = NotificationManager()
     ranker = PortfolioRanker(db_path=repo.db_path)
     detector = DecisionChangeDetector(repo.db_path)
     
@@ -131,7 +131,8 @@ def main():
                 
         logging.info(f"Saved validation reports to {json_path} and {csv_path}")
     else:
-        telegram_router.route_decisions(ranked_decisions)
+        logging.info("Routing alerts via NotificationManager...")
+        notification_manager.route_decisions(ranked_decisions)
         
     logging.info("Run completed.")
 

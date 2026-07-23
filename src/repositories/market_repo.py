@@ -11,6 +11,102 @@ class MarketRepository:
         if not db_path:
             db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'market_data.db')
         self.db_path = db_path
+        self._initialize_db()
+
+    def _initialize_db(self):
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS stocks (
+                symbol TEXT PRIMARY KEY,
+                company TEXT,
+                sector TEXT,
+                industry TEXT,
+                market_cap REAL,
+                average_volume INTEGER,
+                last_updated TEXT
+            )
+            ''')
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS volatility (
+                symbol TEXT PRIMARY KEY,
+                atr REAL,
+                threshold_pct REAL,
+                atr_period INTEGER,
+                updated_at TEXT
+            )
+            ''')
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS price_history (
+                symbol TEXT,
+                date TEXT,
+                close REAL,
+                volume INTEGER,
+                PRIMARY KEY (symbol, date)
+            )
+            ''')
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS alert_log (
+                symbol TEXT,
+                signal_type TEXT,
+                date TEXT,
+                PRIMARY KEY (symbol, signal_type, date)
+            )
+            ''')
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS strategy_config (
+                strategy_name TEXT,
+                param_key TEXT,
+                param_value TEXT,
+                PRIMARY KEY (strategy_name, param_key)
+            )
+            ''')
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS financial_metrics (
+                symbol TEXT PRIMARY KEY,
+                pe_ratio REAL,
+                forward_pe REAL,
+                peg_ratio REAL,
+                debt_to_equity REAL,
+                return_on_equity REAL,
+                free_cash_flow REAL,
+                operating_margin REAL,
+                revenue_growth REAL,
+                earnings_growth REAL,
+                historical_fcf TEXT,
+                provenance_source TEXT,
+                provenance_timestamp TEXT,
+                updated_at TEXT
+            )
+            ''')
+            
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS investment_decisions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                symbol TEXT,
+                recommendation TEXT,
+                investment_score REAL,
+                quality_score REAL,
+                growth_score REAL,
+                valuation_score REAL,
+                entry_score REAL,
+                risk_score REAL,
+                confidence TEXT,
+                horizon TEXT,
+                review_period TEXT,
+                thesis TEXT,
+                red_flags TEXT,
+                data_snapshot_timestamp TEXT,
+                model_version TEXT
+            )
+            ''')
+            conn.commit()
 
     def _get_connection(self):
         return sqlite3.connect(self.db_path)

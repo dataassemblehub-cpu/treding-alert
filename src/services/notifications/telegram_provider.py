@@ -1,24 +1,12 @@
-import logging
-import requests
-import yaml
 import os
+import requests
+import logging
 from typing import List
-from dotenv import load_dotenv
+
+from .provider import NotificationProvider
 from src.models.decision import InvestmentDecision
 
-class TelegramRouter:
-    def __init__(self, db_path=None):
-        self._load_settings()
-        load_dotenv()
-        
-    def _load_settings(self):
-        settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'config', 'telegram.yaml')
-        try:
-            with open(settings_path, 'r') as f:
-                self.config = yaml.safe_load(f).get('notifications', {}).get('telegram', {})
-        except FileNotFoundError:
-            self.config = {'enabled': True, 'destinations': [{'name': 'personal', 'enabled': True, 'message_profile': 'detailed'}]}
-
+class TelegramProvider(NotificationProvider):
     def format_decision(self, decision: InvestmentDecision) -> str:
         icon = {
             "BUY": "🟢🟢",
@@ -62,13 +50,10 @@ class TelegramRouter:
                 
         return "\n".join(lines)
 
-    def route_decisions(self, decisions: List[InvestmentDecision]) -> bool:
-        if not self.config.get('enabled', False):
-            return False
-            
+    def send_batch(self, decisions: List[InvestmentDecision]) -> bool:
         bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
         if not bot_token:
-            logging.warning("TELEGRAM_BOT_TOKEN not found. Notifications skipped.")
+            logging.warning("TELEGRAM_BOT_TOKEN not found. Telegram skipped.")
             return False
             
         destinations = self.config.get('destinations', [])
@@ -91,10 +76,9 @@ class TelegramRouter:
             for decision in decisions:
                 if not allow_all and decision.recommendation in ["WAIT", "AVOID", "WATCHLIST", "RESEARCH"]:
                     continue
-                    
                 blocks.append(self.format_decision(decision))
                 blocks.append("\n───────────────\n")
-            
+                
             if not blocks:
                 continue
                 
@@ -105,9 +89,9 @@ class TelegramRouter:
                 payload = {"chat_id": chat_id, "text": final_msg, "parse_mode": "HTML"}
                 resp = requests.post(url, json=payload, timeout=10)
                 resp.raise_for_status()
-                logging.info(f"Delivered to {dest['name']}")
+                logging.info(f"Delivered Telegram to {dest['name']}")
                 success_count += 1
             except Exception as e:
-                logging.error(f"Failed delivery to {dest['name']}: {e}")
+                logging.error(f"Failed Telegram delivery to {dest['name']}: {e}")
                 
         return success_count > 0
