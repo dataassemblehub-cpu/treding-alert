@@ -8,7 +8,7 @@ notifications:
       - name: group
         enabled: false
   email:
-    enabled: true
+    enabled: false
     # Add SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS to .env
     destinations:
       - name: default_email
