@@ -73,7 +73,13 @@ def main():
             
             data_qual = financials.data_quality if financials else "INSUFFICIENT"
             decision = decision_engine.evaluate(symbol, analysis_results, entry_score, data_quality=data_qual)
+            
+            low_52w = float(stock.history['close'].tail(252).min()) if not stock.history.empty else 0.0
+            target_entry = low_52w * (1 + stock.threshold_pct)
+            
             decision.company_name = stock.company or ""
+            decision.current_price = current_price
+            decision.target_price = target_entry
             
             transition = detector.detect_transition(decision)
             if transition:
