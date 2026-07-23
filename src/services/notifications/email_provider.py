@@ -24,15 +24,19 @@ class EmailProvider(NotificationProvider):
         html = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <h2 style="margin-bottom: 5px;">{icon} {decision.symbol}{name_display}</h2>
-            <p><strong>Recommendation:</strong> {decision.recommendation}</p>
-            <p><strong>Score:</strong> {decision.investment_score}/100<br/>
-            Business: {decision.scores.get('quality', 0):.0f}/100 | 
-            Entry: {decision.scores.get('entry', 0):.0f}/100 | 
-            Risk: {decision.scores.get('risk', 0):.0f}/100</p>
-            <p><strong>Confidence:</strong> {decision.confidence}<br/>
-            <strong>Investment Horizon:</strong> {decision.investment_horizon}<br/>
-            <strong>Review Period:</strong> {decision.review_period}</p>
+            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+                <h3 style="margin-top: 0; color: #333;">{icon} {decision.symbol}{name_display}</h3>
+                <p><strong>Recommendation:</strong> {decision.recommendation}</p>
+                <p><strong>Current Price:</strong> ₹{decision.current_price:.2f}</p>
+                <p><strong>Target Entry:</strong> ₹{decision.target_price:.2f} (Distance: {((decision.current_price / decision.target_price - 1) * 100) if decision.target_price else 0:.1f}%)</p>
+                <p><strong>Score:</strong> {decision.investment_score}/100<br/>
+                Business: {decision.scores.get('quality', 0):.0f}/100 | 
+                Entry: {decision.scores.get('entry', 0):.0f}/100 | 
+                Risk: {decision.scores.get('risk', 0):.0f}/100</p>
+                <p><strong>Confidence:</strong> {decision.confidence}<br/>
+                <strong>Investment Horizon:</strong> {decision.investment_horizon}<br/>
+                <strong>Review Period:</strong> {decision.review_period}</p>
+            </div>
         """
         
         if decision.transition_alert:

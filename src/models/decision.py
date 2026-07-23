@@ -13,6 +13,8 @@ class InvestmentDecision:
     
     company_name: str = ""
     recommendation: str = "WAIT"   
+    current_price: float = 0.0
+    target_price: float = 0.0
     
     thesis: List[str] = field(default_factory=list)
     red_flags: List[str] = field(default_factory=list)

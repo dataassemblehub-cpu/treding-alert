@@ -21,6 +21,9 @@ class TelegramProvider(NotificationProvider):
         lines = [
             f"{icon} <b>{decision.symbol}{name_display}</b>",
             f"Recommendation: <b>{decision.recommendation}</b>",
+            f"Current Price: <b>₹{decision.current_price:.2f}</b>",
+            f"Target Entry: <b>₹{decision.target_price:.2f}</b>",
+            f"Distance to Target: <b>{((decision.current_price / decision.target_price - 1) * 100) if decision.target_price else 0:.1f}%</b>",
             f"Score: {decision.investment_score}/100",
             f"Business Score: {decision.scores.get('quality', 0):.0f}/100",
             f"Entry Score: {decision.scores.get('entry', 0):.0f}/100",
